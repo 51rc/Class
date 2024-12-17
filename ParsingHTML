@@ -1,0 +1,46 @@
+#!/bin/bash
+# Cores
+RESET="\e[0m"
+VERMELHO="\e[1;31m"
+VERDE="\e[1;32m"
+AMARELO="\e[1;33m"
+AZUL="\e[1;34m"
+MAGENTA="\e[1;35m"
+CINZA="\e[1;37m"
+
+if [ "$1" == "" ]
+then
+                echo -e "${VERMELHO}PARSING HTML Du5IRC${RESET}\n"
+                echo -e "${VERDE}Modo de uso: $0 <alvo>${RESET}"
+else 
+
+echo -e "===============================================================================\n\n${AZUL}PARSING HTML Du5IRC:${RESET} ${MAGENTA}$1>
+wget $1 2>/dev/null #HTTP Request
+
+#Filtra saída 
+grep href index.html | cut -d "/" -f 3 | grep "\." | cut -d '"' -f 1 | grep -v "<l" > parsing_$1.txt
+
+echo -e "\n${VERDE}[+] Save Arquive:${RESET} ${VERMELHO}parsing_$1.txt${RESET}\n"
+
+rm index* #Remove o arquivo html
+
+echo -e "==============================================================================="
+
+#Resolve host e tabulando a saída
+
+echo -e "${VERDE}[+] Results ${RESET}\n"
+printf "%-4s %-30s %-15s\n" "Num" "ADDRESS" "IP"
+echo "-------------------------------------------------------------"
+#inicia contador
+i=1
+# Processa cada URL e exibe a saída formatada
+
+for url in $(cat parsing_$1.txt); do 
+        ip=$(host -4 $url | grep "has address" | cut -d " " -f 4)
+        if [ -n "$ip" ]; then
+                printf "%-4s %-30s %-15s\n" "$i" "$url" "$ip"
+                ((i++))
+        fi
+done
+
+fi
